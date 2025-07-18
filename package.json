@@ -1,0 +1,28 @@
+{
+  "name": "use-theme-toggle",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "A lightweight theme toggler with animated transitions and customizable strategies.",
+  "author": "Hachiroth",
+  "license": "MIT",
+  "homepage": "https://github.com/hachiroth/use-theme-toggle#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hachiroth/use-theme-toggle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hachiroth/use-theme-toggle/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.17.0",
+    "eslint": "^9.31.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
