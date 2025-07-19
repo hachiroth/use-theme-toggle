@@ -1,0 +1,68 @@
+name: Publish to npm on version change
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout with previous commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get previous version
+        id: prev_version
+        run: |
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            git show HEAD^:package.json > prev-package.json
+            echo "version=$(jq -r .version prev-package.json)" >> "$GITHUB_OUTPUT"
+          else
+            echo "No previous version found."
+            echo "version=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get current version
+        id: curr_version
+        run: |
+          echo "version=$(jq -r .version package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          prev="${{ steps.prev_version.outputs.version }}"
+          curr="${{ steps.curr_version.outputs.version }}"
+          echo "Previous version: $prev"
+          echo "Current version: $curr"
+          if [ -z "$prev" ] || [ "$prev" != "$curr" ]; then
+            echo "Version changed or no previous version"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No version change"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.compare.outputs.publish == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        if: steps.compare.outputs.publish == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.compare.outputs.publish == 'true'
+        run: npm run build
+
+      - name: Publish to npm
+        if: steps.compare.outputs.publish == 'true'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

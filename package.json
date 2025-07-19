@@ -13,10 +13,35 @@
   "bugs": {
     "url": "https://github.com/hachiroth/use-theme-toggle/issues"
   },
-  "main": "index.js",
+  "keywords": [
+    "theme",
+    "toggle",
+    "dark-mode",
+    "light-mode",
+    "css-transition",
+    "view-transition",
+    "view-transition-api",
+    "theme-switch"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.17.0",

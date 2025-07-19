@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test</title>
+</head>
+<style>
+  html {
+    --bg: #fff;
+  }
+
+  html[data-theme="dark"],
+  html.dark {
+    --bg: #000;
+  }
+
+  html {
+    background: var(--bg);
+  }
+</style>
+<body>
+  <button>Toggle</button>
+  <script type="module">
+    import {useThemeToggle, Ripple, Slide} from "/dist/index.js";
+    const {toggle, onThemeToggled} = useThemeToggle(Slide);
+
+    const btn = document.querySelector("button");
+    btn.onclick = (e) => toggle(e)
+    onThemeToggled((theme) => {
+      console.log("Current theme is: ", theme)
+    })
+  </script>
+</body>
+</html>
