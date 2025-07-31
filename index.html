@@ -8,22 +8,38 @@
 <style>
   html {
     --bg: #fff;
+    --text: #000;
+    width: 100vw;
+    height: 100vh;
   }
 
   html[data-theme="dark"],
   html.dark {
     --bg: #000;
+    --text: #fff;
   }
 
   html {
     background: var(--bg);
   }
+  p {
+    color: var(--text);
+    font-size: 2rem;
+  }
 </style>
 <body>
   <button>Toggle</button>
+  <p>
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto commodi animi eveniet sapiente nobis inventore asperiores exercitationem suscipit, doloremque voluptatibus sit perspiciatis magni, unde itaque quibusdam at. Perspiciatis, eveniet voluptatibus!
+  </p>
   <script type="module">
-    import {useThemeToggle, Ripple, Slide} from "/dist/index.js";
-    const {toggle, onThemeToggled} = useThemeToggle(Slide);
+    import {useThemeToggle, Diffusion, Slide} from "/dist/index.js";
+    const {toggle, onThemeToggled} = useThemeToggle(Diffusion, { mode: 'attribute' });
 
     const btn = document.querySelector("button");
     btn.onclick = (e) => toggle(e)

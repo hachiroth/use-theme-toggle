@@ -1,63 +1,77 @@
-import type { TransitionLoader } from "@/types";
+import { defineTransitionLoader } from './defineTransitionLoader'
 
-export const Slide: TransitionLoader = (_e, toggleClassDataTheme, { mode, dark, root }, timing) => {
-  const { duration = 500, easing = "ease-in" } = timing || {};
+function ensureStaticStyleInjected(darkSelector: string) {
+  const id = 'slide-transition-style'
+  if (document.getElementById(id))
+    return
 
-  const darkSelector = mode === "class" ? `.${dark}` : `[data-theme="${dark}"]`;
-
-  const existedStyle = document.querySelector("style[data-slide-transition]");
-  if (existedStyle) {
-    existedStyle.remove();
+  const style = document.createElement('style')
+  style.id = id
+  style.textContent = `
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+    mix-blend-mode: normal;
   }
+  ::view-transition-new(root) {
+    z-index: 999;
+  }
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+  ${darkSelector}::view-transition-new(root) {
+    z-index: 1;
+  }
+  ${darkSelector}::view-transition-old(root) {
+    z-index: 999;
+  }
+`
+  document.head.appendChild(style)
+}
 
-  const style = document.createElement("style");
-  style.setAttribute("data-slide-transition", "true");
-  style.textContent = /* css */`
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation: none;
-      mix-blend-mode: normal;
-    }
-    
-    @keyframes dark-enter {
-      from {
-        clip-path: inset(0 100% 0 0);
-      }
-      to {
-        clip-path: inset(0 0 0 0);
-      }
-    }
-    
-    @keyframes light-enter {
-      from {
-        clip-path: inset(0 0 0 100%);
-      }
-      to {
-        clip-path: inset(0 0 0 0);
-      }
-    }
-    
-    ${darkSelector}::view-transition-new(root) {
-      animation: dark-enter ${duration}ms ${easing} forwards;
-    }
-    
-    :not(${darkSelector})::view-transition-new(root) {
-      animation: light-enter ${duration}ms ${easing} forwards;
-    }
-    
-    ::view-transition-old(root) {
-      animation: none;
-    }
-  `;
-  document.head.appendChild(style);
+export const Slide = defineTransitionLoader((toggle, options, _e) => {
+  ensureStaticStyleInjected(options.darkSelector)
 
+  let isDark = false
   const transition = document.startViewTransition(() => {
-    toggleClassDataTheme();
-    root.classList.add("slide-transitioning");
-  });
+    const next = toggle()
+    isDark = next === options.dark
 
-  transition.finished.finally(() => {
-    style.remove();
-    root.classList.remove("slide-transitioning");
-  });
-};
+    document.documentElement.classList.add('slide-transition')
+  })
+
+  transition.ready.then(() => {
+    const duration = options.duration
+    const easing = options.easing
+
+    const newPseudo = isDark
+      ? '::view-transition-new(root)'
+      : '::view-transition-new(root)'
+
+    const oldPseudo = isDark
+      ? '::view-transition-old(root)'
+      : '::view-transition-old(root)'
+
+    options.root.animate([
+      { transform: `translateX(${isDark ? '100%' : '-100%'})` },
+      { transform: 'translateX(0)' },
+    ], {
+      duration,
+      easing,
+      pseudoElement: newPseudo,
+    })
+
+    options.root.animate([
+      { transform: 'translateX(0)' },
+      { transform: `translateX(${isDark ? '-100%' : '100%'})` },
+    ], {
+      duration,
+      easing,
+      pseudoElement: oldPseudo,
+    })
+  })
+
+  transition.finished.then(() => {
+    document.documentElement.classList.remove('slide-transition')
+  })
+})

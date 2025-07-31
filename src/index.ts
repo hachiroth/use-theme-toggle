@@ -1,4 +1,3 @@
-export { useThemeToggle } from "./themeToggle";
-export { Ripple } from "./transitions/ripple";
-export { Slide } from "./transitions/slide";
-export * from "./types";
+export { useThemeToggle } from './themeToggle'
+export * from './transitions'
+export * from './types'

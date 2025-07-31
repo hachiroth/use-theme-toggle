@@ -23,28 +23,28 @@ pnpm add use-theme-toggle
 ### Basic Usage
 
 ```ts
-import { useThemeToggle } from "use-theme-toggle";
+import { useThemeToggle } from 'use-theme-toggle'
 
-const { toggle, theme, isDark } = useThemeToggle();
+const { toggle, theme, isDark } = useThemeToggle()
 ```
 
 ### With Options
 
 ```ts
 const { toggle } = useThemeToggle({
-  light: "light",
-  dark: "dark",
-  mode: "data-theme", // or "class"
-});
+  light: 'light',
+  dark: 'dark',
+  mode: 'data-theme', // or "class"
+})
 ```
 
 ## Built-in Transitions
 
 ```ts
-import { Ripple, Slide } from "use-theme-toggle";
+import { Ripple, Slide } from 'use-theme-toggle'
 
 // Use with options:
-useThemeToggle(Ripple);
+useThemeToggle(Ripple)
 ```
 
 | Name   | Effect Description         |
@@ -57,13 +57,13 @@ You can also write your own strategy by implementing the `TransitionLoader` type
 ## Custom Strategy
 
 ```ts
-import type { TransitionLoader } from "use-theme-toggle";
+import type { TransitionLoader } from 'use-theme-toggle'
 
 const myCustomTransition: TransitionLoader = (el, toggleClassDataTheme, meta, timing) => {
   document.startViewTransition(() => {
-    toggle();
-  });
-};
+    toggle()
+  })
+}
 ```
 
 ## TypeScript

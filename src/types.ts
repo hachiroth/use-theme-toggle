@@ -1,30 +1,45 @@
-export type ThemeMode = "class" | "data-theme";
+export type ThemeMode = 'class' | 'attribute'
 
-export type AnimationType = "element-plus" | "t-design";
+export interface BaseOptions<Light, Dark> {
+  light?: Light
+  dark?: Dark
+  easing?: string
+  duration?: number
+  /**
+   * Key in `localstorage`
+   * @default theme
+   */
+  key?: string
+}
+export interface ClassModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {}
 
-export interface ThemeToggleOptions<L = string, D = string> {
-  mode?: ThemeMode;
-  key?: string;
-  light?: L;
-  dark?: D;
-  dataKey?: string;
-  timing?: EffectTiming;
+export interface DataThemeModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {
+  /**
+   * Key in `data-theme` mode.
+   * @example data-theme
+   * @default data-theme
+   */
+  attribute?: string
 }
 
-export interface ThemeToggleReturn<L = string, D = string> {
-  toggle: (e: MouseEvent) => void;
-  onThemeToggled: (cb: (currentTheme: L | D) => void) => void;
+export type ThemeToggleOptions<Light, Dark> = {
+  mode: 'class'
+} & ClassModeOptions<Light, Dark>
+| {
+  mode: 'attribute'
+} & DataThemeModeOptions<Light, Dark>
+
+export interface ThemeToggleReturn<Light, Dark> {
+  toggle: (e?: Event) => void
+  onThemeToggled: (cb: (currentTheme: Light | Dark) => void) => void
 }
 
-export interface TransitionLoader<L = string, D = string> {
-  (
-    e: MouseEvent,
-    toggleClassDataTheme: () => L | D,
-    meta: {
-      mode: ThemeMode;
-      dark: D;
-      root: HTMLElement;
-    },
-    timing?: EffectTiming
-  ): void;
-}
+export type TransitionLoader<Light extends string, Dark extends string> = (
+  toggleClassOrAttribute: () => Light | Dark,
+  options: ThemeToggleOptions<Light, Dark> & {
+    root: HTMLElement
+    darkSelector: string
+    previousTheme: Light | Dark
+  },
+  e?: any
+) => void

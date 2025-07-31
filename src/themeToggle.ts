@@ -1,81 +1,105 @@
-import type { ThemeToggleOptions, ThemeToggleReturn, TransitionLoader } from "./types";
-import { baseTransition } from "./transitions/baseTransition";
+import type { ThemeToggleOptions, ThemeToggleReturn, TransitionLoader } from './types'
+import { BaseTransition } from './transitions'
 
-function useThemeToggle<L = "light", D = "dark">(): ThemeToggleReturn<L, D>;
-function useThemeToggle<L = "light", D = "dark">(options: ThemeToggleOptions<L, D>): ThemeToggleReturn<L, D>;
-function useThemeToggle<L = "light", D = "dark">(loader: TransitionLoader<L, D>): ThemeToggleReturn<L, D>;
-function useThemeToggle<L = "light", D = "dark">(loader: TransitionLoader<L, D>, options: ThemeToggleOptions<L, D>): ThemeToggleReturn<L, D>;
-function useThemeToggle(arg1?: ThemeToggleOptions | TransitionLoader, arg2?: ThemeToggleOptions): ThemeToggleReturn {
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(): ThemeToggleReturn<Light, Dark>
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(options: ThemeToggleOptions<Light, Dark>): ThemeToggleReturn<Light, Dark>
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(loader: TransitionLoader<Light, Dark>): ThemeToggleReturn<Light, Dark>
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'light'>(loader: TransitionLoader<Light, Dark>, options: ThemeToggleOptions<Light, Dark>): ThemeToggleReturn<Light, Dark>
+
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(
+  _arg1?: ThemeToggleOptions<Light, Dark> | TransitionLoader<Light, Dark>,
+  _arg2?: ThemeToggleOptions<Light, Dark>,
+): ThemeToggleReturn<Light, Dark> {
   if (
-    typeof window === "undefined"
-    || typeof document === "undefined"
-    || typeof localStorage === "undefined"
+    typeof window === 'undefined'
+    || typeof document === 'undefined'
+    || typeof localStorage === 'undefined'
   ) {
-    return { toggle: () => {}, onThemeToggled: () => {} };
+    return { toggle() {}, onThemeToggled() {} }
   }
 
-  let loader: TransitionLoader | null;
-  let options: ThemeToggleOptions;
+  let loader: TransitionLoader<Light, Dark> | null
+  let options: Required<ThemeToggleOptions<Light, Dark>>
 
-  if (typeof arg1 === "function") {
-    loader = arg1;
-    options = arg2 || {};
+  const defaultOptions: ThemeToggleOptions<Light, Dark> = {
+    mode: 'class',
+    key: 'theme',
+    light: 'light' as Light,
+    dark: 'dark' as Dark,
+    easing: 'ease-out',
+    duration: 500,
+  }
+
+  if (typeof _arg1 === 'function') {
+    loader = _arg1
+    options = { ...defaultOptions, ..._arg2 } as Required<ThemeToggleOptions<Light, Dark>>
   }
   else {
-    loader = null;
-    options = arg1 || {};
+    loader = null
+    options = { ...defaultOptions, ..._arg1 } as Required<ThemeToggleOptions<Light, Dark>>
   }
 
-  const { mode = "class", key = "theme", light = "light", dark = "dark", dataKey = "data-theme", timing = { duration: 500, easing: "ease-in" } } = options;
+  const { mode, light, dark, key } = options
 
-  const root = document.documentElement;
-  let themeCallback = (_currentTheme: string) => {};
+  let attributeName = 'data-theme'
+  if (mode === 'attribute') {
+    attributeName = options.attribute || attributeName
+  }
 
-  let saved = localStorage.getItem(key);
+  const root = document.documentElement
+  let toggledCallback = (_currentTheme: Light | Dark) => {}
+
+  let saved = localStorage.getItem(key)
   if (!saved) {
-    localStorage.setItem(key, light);
-    saved = light;
+    localStorage.setItem(key, light)
+    saved = light
   }
-  let current = saved === dark ? dark : light;
+  let current = saved === dark ? dark : light
 
-  if (mode === "class") {
-    root.classList.add(current);
+  if (mode === 'class') {
+    root.classList.add(current)
   }
-  else if (mode === "data-theme") {
-    root.setAttribute(dataKey, current);
+  else if (mode === 'attribute') {
+    root.setAttribute(attributeName, current)
   }
 
-  const toggleClassDataTheme = () => {
-    const next = current === dark ? light : dark;
+  const darkSelector = options.mode === 'class' ? `.${options.dark}` : `[${attributeName}=${options.dark}]`
 
-    if (mode === "class") {
-      root.classList.remove(current);
-      root.classList.add(next);
+  /**
+   * Toggle class or attribute
+   * @returns Next theme
+   */
+  const toggleClassOrAttribute = () => {
+    const next = current === dark ? light : dark
+
+    if (mode === 'class') {
+      root.classList.remove(current)
+      root.classList.add(next)
     }
-    else if (mode === "data-theme") {
-      root.setAttribute(dataKey, next);
+    else if (mode === 'attribute') {
+      root.setAttribute(attributeName, next)
     }
 
-    current = next;
-    localStorage.setItem(key, next);
-    themeCallback(next);
-    return next;
-  };
+    current = next
+    localStorage.setItem(key, next)
+    toggledCallback(next)
+    return next
+  }
 
   return {
     toggle(e) {
-      if (!loader || typeof loader !== "function") {
-        return baseTransition(e, toggleClassDataTheme, { mode, dark, root }, timing);
+      if (!loader || typeof loader !== 'function') {
+        return BaseTransition(toggleClassOrAttribute, { ...options, root, darkSelector, previousTheme: current }, e)
       }
-      return loader(e, toggleClassDataTheme, { mode, dark, root }, timing);
+      return loader?.(toggleClassOrAttribute, { ...options, root, darkSelector, previousTheme: current }, e)
     },
     onThemeToggled(cb) {
-      if (typeof cb === "function") {
-        themeCallback = cb;
-        themeCallback(current);
+      if (typeof cb === 'function') {
+        toggledCallback = cb
+        toggledCallback(current)
       }
     },
-  };
+  }
 }
 
-export { useThemeToggle };
+export { useThemeToggle }
