@@ -4,10 +4,10 @@ import { BaseTransition } from './transitions'
 function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(): ThemeToggleReturn<Light, Dark>
 function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(options: ThemeToggleOptions<Light, Dark>): ThemeToggleReturn<Light, Dark>
 function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(loader: TransitionLoader<Light, Dark>): ThemeToggleReturn<Light, Dark>
-function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'light'>(loader: TransitionLoader<Light, Dark>, options: ThemeToggleOptions<Light, Dark>): ThemeToggleReturn<Light, Dark>
+function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(loader: TransitionLoader<Light, Dark>, options: ThemeToggleOptions<Light, Dark>): ThemeToggleReturn<Light, Dark>
 
 function useThemeToggle<const Light extends string = 'light', const Dark extends string = 'dark'>(
-  _arg1?: ThemeToggleOptions<Light, Dark> | TransitionLoader<Light, Dark>,
+  _arg1?: TransitionLoader<Light, Dark> | ThemeToggleOptions<Light, Dark>,
   _arg2?: ThemeToggleOptions<Light, Dark>,
 ): ThemeToggleReturn<Light, Dark> {
   if (
@@ -89,7 +89,8 @@ function useThemeToggle<const Light extends string = 'light', const Dark extends
   return {
     toggle(e) {
       if (!loader || typeof loader !== 'function') {
-        return BaseTransition(toggleClassOrAttribute, { ...options, root, darkSelector, previousTheme: current }, e)
+        const loader = BaseTransition<Light, Dark>()
+        return loader(toggleClassOrAttribute, { ...options, root, darkSelector, previousTheme: current }, e)
       }
       return loader?.(toggleClassOrAttribute, { ...options, root, darkSelector, previousTheme: current }, e)
     },

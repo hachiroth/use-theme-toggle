@@ -15,8 +15,8 @@ export interface ClassModeOptions<Light, Dark> extends BaseOptions<Light, Dark> 
 
 export interface DataThemeModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {
   /**
-   * Key in `data-theme` mode.
-   * @example data-theme
+   * Key in `attribute` mode.
+   * @example data-theme, mode
    * @default data-theme
    */
   attribute?: string
@@ -34,7 +34,7 @@ export interface ThemeToggleReturn<Light, Dark> {
   onThemeToggled: (cb: (currentTheme: Light | Dark) => void) => void
 }
 
-export type TransitionLoader<Light extends string, Dark extends string> = (
+export type TransitionLoader<Light, Dark> = (
   toggleClassOrAttribute: () => Light | Dark,
   options: ThemeToggleOptions<Light, Dark> & {
     root: HTMLElement

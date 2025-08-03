@@ -1,11 +1,13 @@
-import { defineTransitionLoader } from './defineTransitionLoader'
+import type { TransitionLoader } from '@/types'
 
-export const BaseTransition = defineTransitionLoader((toggle, { root }, _e) => {
-  const transition = document.startViewTransition(() => {
-    toggle()
-    root.classList.add('base-transition')
-  })
-  transition.finished.finally(() => {
-    root.classList.remove('base-transition')
-  })
-})
+export function BaseTransition<Light, Dark>(): TransitionLoader<Light, Dark> {
+  return (toggle, { root }, _e) => {
+    const transition = document.startViewTransition(() => {
+      toggle()
+      root.classList.add('base-transition')
+    })
+    transition.finished.finally(() => {
+      root.classList.remove('base-transition')
+    })
+  }
+}

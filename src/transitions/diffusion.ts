@@ -1,4 +1,4 @@
-import { defineTransitionLoader } from './defineTransitionLoader'
+import type { TransitionLoader } from '@/types'
 
 function ensureStaticStyleInjected(darkSelector: string) {
   const id = 'diffusion-transition-style'
@@ -29,39 +29,41 @@ function ensureStaticStyleInjected(darkSelector: string) {
   document.head.appendChild(style)
 }
 
-export const Diffusion = defineTransitionLoader((toggle, options, e: MouseEvent) => {
-  const x = e.clientX
-  const y = e.clientY
-  const radius = Math.hypot(
-    Math.max(x, window.innerWidth),
-    Math.max(y, window.innerHeight),
-  )
-  let isDark = false
+export function Diffusion<Light, Dark>(): TransitionLoader<Light, Dark> {
+  return (toggle, options, e: MouseEvent) => {
+    const x = e.clientX
+    const y = e.clientY
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth),
+      Math.max(y, window.innerHeight),
+    )
+    let isDark = false
 
-  ensureStaticStyleInjected(options.darkSelector)
+    ensureStaticStyleInjected(options.darkSelector)
 
-  const transition = document.startViewTransition(() => {
-    const current = toggle()
-    isDark = current === options.dark
-    options.root.classList.add('diffusion-transition')
-  })
-
-  transition.ready.then(() => {
-    const clipPath = [
-      `circle(0px at ${x}px ${y}px)`,
-      `circle(${radius}px at ${x}px ${y}px)`,
-    ]
-
-    options.root.animate({
-      clipPath: isDark ? [...clipPath].reverse() : [...clipPath],
-    }, {
-      duration: options.duration,
-      easing: options.easing,
-      pseudoElement: isDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
+    const transition = document.startViewTransition(() => {
+      const current = toggle()
+      isDark = current === options.dark
+      options.root.classList.add('diffusion-transition')
     })
-  })
 
-  transition.finished.then(() => {
-    options.root.classList.remove('diffusion-transition')
-  })
-})
+    transition.ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${radius}px at ${x}px ${y}px)`,
+      ]
+
+      options.root.animate({
+        clipPath: isDark ? [...clipPath].reverse() : [...clipPath],
+      }, {
+        duration: options.duration,
+        easing: options.easing,
+        pseudoElement: isDark ? '::view-transition-old(root)' : '::view-transition-new(root)',
+      })
+    })
+
+    transition.finished.then(() => {
+      options.root.classList.remove('diffusion-transition')
+    })
+  }
+}
