@@ -31,8 +31,15 @@ function useThemeToggle<const Light extends string = 'light', const Dark extends
   }
 
   if (typeof _arg1 === 'function') {
-    loader = _arg1
+    const maybeLoader = _arg1 as any
     options = { ...defaultOptions, ..._arg2 } as Required<ThemeToggleOptions<Light, Dark>>
+
+    if (maybeLoader.length <= 1) {
+      loader = maybeLoader()
+    }
+    else {
+      loader = maybeLoader
+    }
   }
   else {
     loader = null
