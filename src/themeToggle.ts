@@ -56,6 +56,7 @@ function useThemeToggle<const Light extends string = 'light', const Dark extends
   const root = document.documentElement
   let toggledCallback = (_currentTheme: Light | Dark) => {}
 
+  // Resume from storage
   let saved = localStorage.getItem(key)
   if (!saved) {
     localStorage.setItem(key, light)
@@ -63,12 +64,16 @@ function useThemeToggle<const Light extends string = 'light', const Dark extends
   }
   let current = saved === dark ? dark : light
 
-  if (mode === 'class') {
-    root.classList.add(current)
+  const resumeTheme: Record<ThemeToggleOptions<Light, Dark>['mode'], () => void> = {
+    class: () => root.classList.add(current),
+    attribute: () => root.setAttribute(attributeName, current),
+    both: () => {
+      root.classList.add(current)
+      root.setAttribute(attributeName, current)
+    },
   }
-  else if (mode === 'attribute') {
-    root.setAttribute(attributeName, current)
-  }
+
+  resumeTheme[mode]?.()
 
   const darkSelector = options.mode === 'class' ? `.${options.dark}` : `[${attributeName}=${options.dark}]`
 
@@ -79,13 +84,22 @@ function useThemeToggle<const Light extends string = 'light', const Dark extends
   const toggleClassOrAttribute = () => {
     const next = current === dark ? light : dark
 
-    if (mode === 'class') {
-      root.classList.remove(current)
-      root.classList.add(next)
+    const toggleMap: Record<ThemeToggleOptions<Light, Dark>['mode'], () => void> = {
+      class: () => {
+        root.classList.remove(current)
+        root.classList.add(next)
+      },
+      attribute: () => {
+        root.setAttribute(attributeName, next)
+      },
+      both: () => {
+        root.classList.remove(current)
+        root.classList.add(next)
+        root.setAttribute(attributeName, next)
+      },
     }
-    else if (mode === 'attribute') {
-      root.setAttribute(attributeName, next)
-    }
+
+    toggleMap[mode]?.()
 
     current = next
     localStorage.setItem(key, next)

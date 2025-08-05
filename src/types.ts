@@ -1,5 +1,3 @@
-export type ThemeMode = 'class' | 'attribute'
-
 export interface BaseOptions<Light, Dark> {
   light?: Light
   dark?: Dark
@@ -13,7 +11,7 @@ export interface BaseOptions<Light, Dark> {
 }
 export interface ClassModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {}
 
-export interface DataThemeModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {
+export interface AttributeModeOptions<Light, Dark> extends BaseOptions<Light, Dark> {
   /**
    * Key in `attribute` mode.
    * @example data-theme, mode
@@ -27,7 +25,10 @@ export type ThemeToggleOptions<Light, Dark> = {
 } & ClassModeOptions<Light, Dark>
 | {
   mode: 'attribute'
-} & DataThemeModeOptions<Light, Dark>
+} & AttributeModeOptions<Light, Dark>
+| {
+  mode: 'both'
+} & ClassModeOptions<Light, Dark> & AttributeModeOptions<Light, Dark>
 
 export interface ThemeToggleReturn<Light, Dark> {
   toggle: (e?: Event) => void

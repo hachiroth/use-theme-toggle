@@ -30,7 +30,7 @@ const { toggle, onThemeToggled } = useThemeToggle()
 
 ```ts
 const { toggle, onThemeToggled } = useThemeToggle({
-  mode: 'attribute',
+  mode: 'attribute', // class | attribute | both
   light: 'custom-light',
 })
 ```
